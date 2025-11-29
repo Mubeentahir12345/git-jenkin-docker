@@ -8,8 +8,7 @@ on:
 
 jobs:
   trigger-jenkins:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
       - name: Trigger Jenkins Job
         run: |
