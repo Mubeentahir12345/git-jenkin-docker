@@ -2,39 +2,39 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REPO = "yourdockerhubusername/git-jenkin-docker" // Change this to your DockerHub repo
-        DOCKER_CREDS = "dockerhub-creds" // Jenkins credential ID for DockerHub
+        REPO = "mubeentahir12345/git-jenkin-docker"  // tumhara DockerHub username
+        CREDS = "dockerhub-creds"                    // Jenkins credential ID
     }
 
     stages {
-        stage("Pull Code from Git") {
+        stage("Pull from Git") {
             steps {
                 checkout scm
-                echo "Code successfully pulled from GitHub"
+                echo "Code pulled from GitHub"
             }
         }
 
         stage("Build Docker Image") {
             steps {
                 script {
-                    IMAGE_TAG = "${DOCKER_REPO}:${env.BUILD_NUMBER}"
-                    echo "Building Docker image: ${IMAGE_TAG}"
+                    IMAGE_TAG = "${REPO}:${env.BUILD_NUMBER}"
                     sh "docker build -t ${IMAGE_TAG} ."
+                    echo "Docker image built: ${IMAGE_TAG}"
                 }
             }
         }
 
-        stage("Push Docker Image to DockerHub") {
+        stage("Push to DockerHub") {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "${DOCKER_CREDS}",
+                    credentialsId: CREDS,
                     usernameVariable: "USER",
                     passwordVariable: "PASS"
                 )]) {
-                    sh """
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                    sh '''
+                        echo $PASS | docker login -u $USER --password-stdin
                         docker push ${IMAGE_TAG}
-                    """
+                    '''
                 }
             }
         }
@@ -42,22 +42,18 @@ pipeline {
         stage("Run Docker Container (Optional)") {
             steps {
                 script {
-                    sh """
+                    sh '''
                         docker stop git-jenkin-docker || true
                         docker rm git-jenkin-docker || true
                         docker run -d --name git-jenkin-docker -p 3000:3000 ${IMAGE_TAG}
-                    """
+                    '''
                 }
             }
         }
     }
 
     post {
-        success {
-            echo "Pipeline completed successfully: ${IMAGE_TAG}"
-        }
-        failure {
-            echo "Pipeline failed! Check logs."
-        }
+        success { echo "Pipeline completed successfully!" }
+        failure { echo "Pipeline failed!" }
     }
 }
