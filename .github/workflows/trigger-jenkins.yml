@@ -9,8 +9,13 @@ on:
 jobs:
   trigger-jenkins:
     runs-on: self-hosted
+
     steps:
       - name: Trigger Jenkins Job
         run: |
-          curl -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }}" \
-               -X POST "http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123"
+          powershell -ExecutionPolicy Bypass -Command "
+            $User = '${{ secrets.JENKINS_USER }}';
+            $Token = '${{ secrets.JENKINS_API_TOKEN }}';
+            $Base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(\"$User:$Token\"));
+            Invoke-WebRequest -Uri 'http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123' -Method Post -Headers @{Authorization=\"Basic $Base64Auth\"}
+          "
