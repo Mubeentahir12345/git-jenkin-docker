@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: Trigger Jenkins Job
         run: |
-          curl -X POST http://<JENKINS_URL>/job/git-jenkin-docker/build?token=trigger123
+          curl -X POST http://192.168.1.10:8080/job/git-jenkin-docker/build?token=trigger123
