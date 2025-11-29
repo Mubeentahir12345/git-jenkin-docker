@@ -1,57 +1,15 @@
-pipeline {
-    agent any
+name: Trigger Jenkins
 
-    environment {
-        // Your DockerHub repo (optional if you want Docker build)
-        REPO = "yourdockerhubusername/git-jenkin-docker"
-        CREDS = "dockerhub-creds" // Jenkins credentials ID for Docker
-    }
+on:
+  push:
+    branches:
+      - main
 
-    stages {
-        stage('Pull from GitHub') {
-            steps {
-                echo "Cloning repository..."
-                // Checkout the GitHub repo
-                checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']],
-                          userRemoteConfigs: [[url: 'https://github.com/Mubeentahir12345/git-jenkin-docker.git']]
-                ])
-            }
-        }
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    // Optional: build Docker image
-                    IMAGE_TAG = "${REPO}:${env.BUILD_NUMBER}"
-                    echo "Building Docker image: ${IMAGE_TAG}"
-                    sh "docker build -t ${IMAGE_TAG} ."
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: CREDS,
-                    usernameVariable: "USER",
-                    passwordVariable: "PASS"
-                )]) {
-                    sh """
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
-                        docker push ${IMAGE_TAG}
-                    """
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Pipeline completed successfully!"
-        }
-        failure {
-            echo "Pipeline failed."
-        }
-    }
-}
+    steps:
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123
