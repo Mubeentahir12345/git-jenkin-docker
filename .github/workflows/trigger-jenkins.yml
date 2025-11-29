@@ -13,5 +13,5 @@ jobs:
     steps:
       - name: Trigger Jenkins Job
         run: |
-          curl -u ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }} \
+          curl -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }}" \
                -X POST "http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123"
