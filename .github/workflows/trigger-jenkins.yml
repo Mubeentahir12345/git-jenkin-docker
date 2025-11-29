@@ -1,9 +1,10 @@
-name: Trigger Jenkins
+name: Trigger Jenkins Job
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   trigger-jenkins:
@@ -12,4 +13,5 @@ jobs:
     steps:
       - name: Trigger Jenkins Job
         run: |
-          curl -X POST http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123
+          curl -u ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }} \
+               -X POST "http://192.168.100.6:8080/job/git-jenkin-docker/build?token=trigger123"
